@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Frontend Literature Entry",
+  "description": "Strojno citljiv zapis jedne jedinice frontend literature (knjiga, dokumentacija, paper, tecaj, spec, repo, clanak, video).",
+  "type": "object",
+  "required": ["id", "title", "type", "category", "level", "access", "url"],
+  "properties": {
+    "id": { "type": "string", "description": "kebab-case slug, jedinstven" },
+    "title": { "type": "string" },
+    "authors": { "type": "array", "items": { "type": "string" } },
+    "year": { "type": ["integer", "null"] },
+    "edition": { "type": ["string", "null"] },
+    "type": { "type": "string", "enum": ["book", "docs", "paper", "course", "tutorial", "article", "video", "spec", "repo", "newsletter", "interactive"] },
+    "category": { "type": "string", "description": "glavna kategorija (vidi README)" },
+    "subtopics": { "type": "array", "items": { "type": "string" } },
+    "level": { "type": "string", "enum": ["beginner", "intermediate", "advanced", "expert"] },
+    "access": { "type": "string", "enum": ["free", "paid", "freemium"] },
+    "url": { "type": "string", "format": "uri" },
+    "publisher": { "type": ["string", "null"] },
+    "doi": { "type": ["string", "null"], "description": "za akademske radove" },
+    "venue": { "type": ["string", "null"], "description": "konferencija/casopis za papere" },
+    "description": { "type": "string", "description": "1-2 recenice: sto je i zasto vrijedi" },
+    "machine_tags": { "type": "array", "items": { "type": "string" } },
+    "source": { "type": "string", "enum": ["scholar", "web", "known"], "description": "kako je pronadjeno" },
+    "verified": { "type": "boolean", "description": "je li URL/postojanje provjereno" }
+  }
+}

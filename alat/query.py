@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Pretraga kataloga frontend literature.
-Primjeri:
+"""Query the frontend literature catalogue.
+Examples:
   python query.py --category anim-gsap-mastery --level expert
   python query.py --tag scrolltrigger --access free
   python query.py --search "view transitions" --gold
@@ -25,7 +25,7 @@ def main():
     ap.add_argument("--type")
     ap.add_argument("--tag")
     ap.add_argument("--search")
-    ap.add_argument("--gold", action="store_true", help="samo verified gold")
+    ap.add_argument("--gold", action="store_true", help="verified subset only")
     ap.add_argument("--limit", type=int, default=50)
     ap.add_argument("--list-categories", action="store_true")
     a = ap.parse_args()

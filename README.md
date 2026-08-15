@@ -1,51 +1,51 @@
 # frontend-literature
 
-Strojno citljiv katalog frontend literature: **1659 zapisa**, od toga **1541
-provjeren**, sa shemom, zatvorenim skupovima vrijednosti i testovima koji
-katalog drze upotrebljivim.
+A machine-readable catalogue of frontend literature. 1,659 entries, 1,541
+verified, with a schema, closed value sets, and tests that keep it usable.
 
-Nije popis linkova. Svaki zapis nosi vrstu, kategoriju, razinu, nacin
-pristupa, oznake i recenicu o tome zasto vrijedi, pa se moze filtrirati
-strojno umjesto citati redom.
-
-```
-$ python alat/query.py --category webgl-threejs-shaders --level expert --access free
-$ python alat/query.py --search "view transitions" --gold
-$ python alat/query.py --list-categories
+```bash
+python alat/query.py --category webgl-threejs-shaders --level expert --access free
+python alat/query.py --search "view transitions" --gold
+python alat/query.py --list-categories
 ```
 
 ---
 
-## Sto je unutra
+## Dataset summary
 
-| | |
-|---|---|
-| Zapisa | 1659 |
-| Provjerenih (`gold`) | 1541 |
-| Jedinstvenih URL-ova | 1659, bez ponavljanja |
-| S oznakom DOI | 161 |
-| Kategorija | 55 |
+Not a link list. Every entry carries type, category, level, access, tags and
+one sentence on why it is worth reading, so it can be filtered by machine
+instead of read top to bottom.
 
-**Po vrsti:** dokumentacija 418, clanak 311, znanstveni rad 195, knjiga 179,
-repozitorij 140, vodic 114, tecaj 93, specifikacija 87, interaktivno 57, video
-44, bilten 21.
+- **Size:** 1,659 entries; 1,541 in the verified subset
+- **Format:** JSONL, one object per line, UTF-8
+- **Schema:** [`katalog/schema.json`](katalog/schema.json), JSON Schema draft-07
+- **Unique URLs:** 1,659, no duplicates
+- **With DOI:** 161
+- **Categories:** 55; the largest holds 2.7% of entries
 
-**Po razini:** napredno 577, srednje 576, ekspertno 294, pocetno 212.
+## Composition
 
-**Po pristupu:** besplatno 1318, placeno 283, mjesovito 58.
+**By type**
 
-Najveca kategorija nosi 2,7 posto zapisa, dakle katalog nije popis jedne teme
-pod sirokim imenom. To drzi test.
+| docs | article | paper | book | repo | tutorial | course | spec | interactive | video | newsletter |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 418 | 311 | 195 | 179 | 140 | 114 | 93 | 87 | 57 | 44 | 21 |
 
-Raspon ide od zivih specifikacija do temeljnih radova iz psihologije
-percepcije: Hick 1952, Fitts 1954, Miller 1956, Stevens 1957 stoje uz WHATWG i
-suvremene alate, jer se moderno oblikovanje sucelja na njih izravno oslanja.
+**By level.** advanced 577, intermediate 576, expert 294, beginner 212.
 
-## Shema
+**By access.** free 1,318, paid 283, freemium 58.
 
-[`katalog/schema.json`](katalog/schema.json). Obavezno je `id`, `title`,
-`type`, `category`, `level`, `access`, `url`. Tri polja imaju zatvoren skup
-vrijednosti, jer sluze za filtriranje:
+The range runs from living specifications to foundational papers in perception
+and decision-making: Hick 1952, Fitts 1954, Miller 1956, Stevens 1957 sit next
+to WHATWG and current tooling, because modern interface design leans on them
+directly.
+
+## Fields
+
+Required: `id`, `title`, `type`, `category`, `level`, `access`, `url`.
+
+Three fields have closed value sets, because they are what you filter on:
 
 ```json
 "type":   ["book","docs","paper","course","tutorial","article",
@@ -54,65 +54,72 @@ vrijednosti, jer sluze za filtriranje:
 "access": ["free","paid","freemium"]
 ```
 
-Vrijednost izvan skupa nije samo neuredna: filtar bi tiho prestao vracati taj
-zapis umjesto da javi gresku. Zato to drzi test, a ne dogovor.
+A value outside the set is not merely untidy: the filter would silently stop
+returning that entry instead of raising. A test holds this, not a convention.
 
-Polje `source` biljezi **kako je zapis pronadjen** (`scholar`, `web`,
-`known`), a `verified` je li postojanje provjereno. Ta dva polja postoje da se
-ne mijesa "znam za ovo" s "provjerio sam ovo".
+Two fields exist to keep two different things apart. `source` records **how the
+entry was found** (`scholar`, `web`, `known`); `verified` records whether its
+existence was checked. "I know of this" is not "I checked this".
 
-## Provjereni skup
+## The verified subset
 
-`frontend_literature_gold.jsonl` je podskup s provjerenim zapisima. Odnos
-izmedju dvije datoteke nije stvar povjerenja nego testa: provjereni skup mora
-biti **tocno** oni zapisi koji nose zastavicu `verified`. Ako se to razidje,
-jedna od dvije tvrdnje o katalogu je neistinita, a ne zna se koja.
+`frontend_literature_gold.jsonl` holds the verified entries. The relationship
+between the two files is a test, not a promise: the gold file must be
+**exactly** the entries carrying `verified: true`. If those diverge, one of two
+statements about the catalogue is false and you cannot tell which.
 
-## Sto testovi cuvaju
+## What the tests protect
 
-16 testova, i nisu ukras. Katalog bez njih trune tiho:
+16 tests. A catalogue without them rots quietly.
 
-- **jedinstven identifikator** i **jedinstven URL**, jer je isti zapis pod dva
-  imena gori od zapisa koji nedostaje,
-- **zatvoreni skupovi** za tri polja po kojima se filtrira,
-- **opis nije prazan**, jer katalog postoji zato da se ne mora otvoriti svaki
-  link da bi se znalo je li relevantan,
-- **znanstveni radovi nose DOI ili mjesto objave**, inace se ne mogu
-  provjeriti,
-- **nijedna kategorija ne prelazi desetinu** zapisa.
+| Test | Why it exists |
+|---|---|
+| unique `id` | the same entry under two keys is worse than a missing entry |
+| unique `url` | same source listed twice under different names |
+| closed sets on 3 fields | filters must fail loudly, not silently |
+| description not empty | the point is not having to open every link |
+| papers carry DOI or venue | otherwise unverifiable |
+| no category above 10% | keeps it a catalogue, not one topic under a broad name |
 
-Dva nalaza iz pisanja tih testova, oba zadrzana:
+Two findings from writing those tests, both kept:
 
-**Dvanaest ponovljenih identifikatora.** URL-ovi su bili jedinstveni, ali
-dvanaest parova dijelilo je isti kljuc, pa je dohvat po kljucu ovisio o
-redoslijedu citanja. Razrijeseno sufiksom, ne brisanjem: oba zapisa su stvarni
-i razliciti izvori.
+**Twelve duplicate identifiers.** URLs were unique, but twelve pairs shared a
+key, so lookup by key depended on read order. Resolved by suffix, not deletion:
+both entries are real and distinct sources.
 
-**Prva granica godine bila je kriva, ne podaci.** Postavio sam donju granicu
-na 1960 i test je odbacio cetiri zapisa. Sva cetiri su temeljni radovi na koje
-se struka i danas poziva. Granica je spustena na 1950, uz zapisan razlog.
+**The first year bound was wrong, not the data.** I set the lower bound at 1960
+and the test rejected four entries. All four are foundational papers the field
+still cites. The bound moved to 1950, with the reason recorded in the test.
 
-## Jezik
+## Collection method
 
-Opisi su na hrvatskom, ostala polja i oznake na engleskom. To je posljedica
-nastanka, ne odluke; za medjunarodnu upotrebu opisi bi trebali prijevod.
-Filtriranje i strojna upotreba time nisu pogodjeni jer su sva polja s
-zatvorenim skupom na engleskom.
+Entries were gathered from academic search, general web search, and prior
+knowledge, then normalised into the schema. `verified` means the URL and the
+existence of the work were checked. It does **not** mean the content was read
+end to end, nor that the link is guaranteed live today.
 
-## Pokretanje
+## Limitations
 
+- **Descriptions are in Croatian.** All other fields, including every closed
+  set, are in English, so filtering and machine use are unaffected. Full
+  international use would need the descriptions translated.
+- **Link rot is not monitored.** There is no scheduled re-check.
+- **Selection is one person's judgement.** The balance test only guarantees no
+  single category dominates; it says nothing about what is missing.
+
+## Reproduce the numbers
+
+```bash
+git clone https://github.com/hm53-byte/frontend-literature && cd frontend-literature
+pip install pytest && python -m pytest testovi -q
+python alat/query.py --list-categories
 ```
-python -m pytest testovi -q
-python alat/query.py --help
-```
 
-Trazi Python 3.11 ili noviji i nista izvan standardne biblioteke.
+## Licensing
 
-## Licenca
+Apache-2.0 for the schema, tooling and tests. See [LICENSE](LICENSE).
 
-Apache-2.0 za shemu, alat i testove, vidi [LICENSE](LICENSE).
-
-Katalog sadrzi **metapodatke o tudjim radovima**: naslov, autora, godinu,
-poveznicu i vlastiti opis. Ne sadrzi ni jedan redak tudjeg sadrzaja. Prava na
-same radove pripadaju njihovim nositeljima i poveznica na rad nije dozvola za
-njegovu upotrebu.
+The catalogue contains **metadata about other people's work**: title, author,
+year, link and an original description. It contains no part of the works
+themselves. Rights in the works belong to their holders, and a link is not a
+licence to use them.
